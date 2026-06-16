@@ -39,28 +39,29 @@
 
    ```bash
    git clone <ссылка_на_ваш_репозиторий>
-
-
+    ```
 
 2. Перейдите в директорию проекта и активируйте виртуальное окружение:
 
-```bash
-cd Praktic
-python -m venv venv
-# Для Windows:
-venv\Scripts\activate
-# Для Linux/macOS:
-source venv/bin/activate
-
+    ```bash
+    cd Praktic
+    python -m venv venv
+    # Для Windows:
+    venv\Scripts\activate
+    # Для Linux/macOS:
+    source venv/bin/activate
+    ```
 
 3. Установите необходимые зависимости:
 
-```bash
-pip install -r requirements.txt
+    ```bash
+    pip install -r requirements.txt
+    ```
 
 4. Запустите веб-приложение:
 
-```bash
-streamlit run app.py
+    ```bash
+    streamlit run app.py
+    ```
 
 После запуска в вашем браузере автоматически откроется интерфейс приложения по адресу `http://localhost:8501`.
