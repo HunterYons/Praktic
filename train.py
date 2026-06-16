@@ -13,7 +13,7 @@ MODELS_DIR = 'models'
 os.makedirs(MODELS_DIR, exist_ok=True)
 
 # Устройство (Используем твою RTX 5070)
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cpu")
 print(f"Обучение будет проходить на: {device}")
 
 # --- ПОДГОТОВКА ДАННЫХ ---
