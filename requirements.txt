@@ -2,3 +2,5 @@ torch
 torchvision
 streamlit
 Pillow
+fpdf
+pandas
