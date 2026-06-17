@@ -9,3 +9,8 @@ data/
 # Архивы и кэш
 *.zip
 .cache/
+
+# Локальная база данных и отчеты
+*.db
+parking_history.db
+*.pdf
