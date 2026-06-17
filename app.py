@@ -11,6 +11,24 @@ import os
 
 # 1. Настройки страницы
 st.set_page_config(page_title="Умная Парковка", page_icon="🚗", layout="centered")
+
+# --- БОКОВАЯ ПАНЕЛЬ (ТЕХНИЧЕСКИЙ ПАСПОРТ МОДЕЛИ) ---
+with st.sidebar:
+    st.header("⚙️ Паспорт нейросети")
+    st.markdown("""
+    **Текущая модель:** `EfficientNetB0`
+    
+    Эталонные метрики качества на валидационной выборке (2000 изображений):
+    * **Accuracy:** 99.90%
+    * **Precision:** 99.90%
+    * **Recall:** 99.90%
+    * **F1-score:** 99.90%
+    """)
+    
+    st.divider()
+    st.caption("Обучение проводилось на адаптированном датасете PKLot (18 000 изображений). Инференс выполняется на CPU.")
+
+# Заголовок основной страницы
 st.title("🚗 Детектор свободных мест")
 st.write("Загрузите фото фрагмента парковки, и нейросеть определит статус места.")
 
@@ -46,36 +64,40 @@ def get_history():
 # Инициализируем БД при старте приложения
 init_db()
 
-# --- ФУНКЦИЯ СОЗДАНИЯ PDF ОТЧЕТА ---
+# --- ФУНКЦИЯ СОЗДАНИЯ PDF ОТЧЕТА (ДЛЯ НОВОЙ БИБЛИОТЕКИ fpdf2) ---
 def generate_pdf(df):
     pdf = FPDF()
     pdf.add_page()
     
-    # Заголовок
-    pdf.set_font("helvetica", 'B', 16)
-    pdf.cell(200, 10, txt="Parking Detection Analytics Report", ln=True, align="C")
+    # В fpdf2 uni=True писать не нужно, всё работает из коробки!
+    pdf.add_font('Arial', '', 'C:\\Windows\\Fonts\\arial.ttf')
+    pdf.add_font('Arial', 'B', 'C:\\Windows\\Fonts\\arialbd.ttf')
+    
+    # Заголовок отчета
+    pdf.set_font("Arial", 'B', 16)
+    pdf.cell(200, 10, txt="Аналитический отчет системы мониторинга парковки", ln=True, align="C")
     pdf.ln(10)
     
     # Общая статистика
-    pdf.set_font("helvetica", size=12)
-    pdf.cell(200, 10, txt=f"Total requests processed: {len(df)}", ln=True)
+    pdf.set_font("Arial", '', 12)
+    pdf.cell(200, 10, txt=f"Всего обработано запросов: {len(df)}", ln=True)
     
     occupied = len(df[df['result'] == 'Занято (Occupied)'])
     empty = len(df[df['result'] == 'Свободно (Empty)'])
     
-    pdf.cell(200, 10, txt=f"Occupied spots detected: {occupied}", ln=True)
-    pdf.cell(200, 10, txt=f"Empty spots detected: {empty}", ln=True)
+    pdf.cell(200, 10, txt=f"Обнаружено занятых мест: {occupied}", ln=True)
+    pdf.cell(200, 10, txt=f"Обнаружено свободных мест: {empty}", ln=True)
     pdf.ln(10)
     
-    # Детализация (последние 20 записей, чтобы не рвать страницы)
-    pdf.set_font("helvetica", 'B', 12)
-    pdf.cell(200, 10, txt="Recent History (Top 20):", ln=True)
+    # Детализация (последние 20 записей)
+    pdf.set_font("Arial", 'B', 12)
+    pdf.cell(200, 10, txt="История последних проверок (Топ-20):", ln=True)
     
-    pdf.set_font("helvetica", size=10)
+    pdf.set_font("Arial", '', 10)
     for index, row in df.head(20).iterrows():
-        # Адаптируем русский ответ под английский PDF
-        res_en = "Occupied" if "Занято" in row['result'] else "Empty"
-        pdf.cell(200, 8, txt=f"[{row['date']}] File: {row['filename']} | Status: {res_en} | Conf: {row['confidence']:.1f}%", ln=True)
+        # Формируем русский ответ из базы
+        res_ru = "Занято" if "Занято" in row['result'] else "Свободно"
+        pdf.cell(200, 8, txt=f"[{row['date']}] Файл: {row['filename']} | Статус: {res_ru} | Уверенность: {row['confidence']:.1f}%", ln=True)
         
     pdf.output("report.pdf")
     with open("report.pdf", "rb") as f:
@@ -102,7 +124,7 @@ classes = ['Свободно (Empty)', 'Занято (Occupied)']
 
 try:
     model = load_model()
-    st.success("✅ Модель EfficientNetB0 (Точность: 99.9%) успешно загружена в память!")
+    st.success("✅ Модель EfficientNetB0 (Точность: 99.90%) успешно загружена в память!")
 except Exception as e:
     st.error(f"⚠️ Ошибка загрузки модели: {e}. Проверьте наличие файла EfficientNetB0.pth в папке models.")
     st.stop()
@@ -156,19 +178,3 @@ if not history_df.empty:
     )
 else:
     st.write("История пока пуста. Загрузите и проанализируйте первое изображение!")
-
-    # --- БОКОВАЯ ПАНЕЛЬ (ТЕХНИЧЕСКИЙ ПАСПОРТ МОДЕЛИ) ---
-with st.sidebar:
-    st.header("⚙️ Паспорт нейросети")
-    st.markdown("""
-    **Текущая модель:** `EfficientNetB0`
-    
-    Эталонные метрики качества на валидационной выборке (2000 изображений):
-    * **Accuracy:** 99.90%
-    * **Precision:** 99.90%
-    * **Recall:** 99.90%
-    * **F1-score:** 99.90%
-    """)
-    
-    st.divider()
-    st.caption("Обучение проводилось на адаптированном датасете PKLot (18 000 изображений). Инференс выполняется на CPU.")

@@ -2,5 +2,5 @@ torch
 torchvision
 streamlit
 Pillow
-fpdf
+fpdf2
 pandas
